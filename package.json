@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "serverless": "^1.26.1",
+    "serverless-plugin-existing-s3": "^2.0.3"
+  }
+}

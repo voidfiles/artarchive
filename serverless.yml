@@ -1,0 +1,32 @@
+service: artfinder
+
+provider:
+  name: aws
+  region: us-west-2
+  runtime: go1.x
+  deploymentBucket:
+    name: code.slide-stream-server.com
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./_work/**
+
+functions:
+  hello:
+    handler: _work/artarchive_linux_amd64
+    timeout: 250
+    role: arn:aws:iam::140099371219:role/iam_for_lambda
+    events:
+      - schedule: rate(5 minutes)
+    environment:
+      LAMBDA: "finder"
+  indexer:
+    handler: _work/artarchive_linux_amd64
+    timeout: 250
+    role: arn:aws:iam::140099371219:role/iam_for_lambda
+    events:
+      - schedule: rate(60 minutes)
+    environment:
+      LAMBDA: "indexer"

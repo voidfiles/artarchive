@@ -1,0 +1,8 @@
+data
+download-cache
+_triples
+_work
+bin
+vendor
+node_modules
+.serverless
