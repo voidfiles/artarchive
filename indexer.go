@@ -53,7 +53,15 @@ var mainDoc = `<html>
 </html>`
 
 func (i *Indexer) slideToHTML(slide Slide) string {
-	return fmt.Sprintf(`<section data-background-image="%s/images/%s" data-background-size="contain"></section>`, i.public, slide.ArchivedImage.Filename)
+	content := ""
+	if slide.ArtistInfo != nil {
+		if slide.ArtistInfo.Name != "" {
+			content += fmt.Sprintf("<h1>%s</h1>", slide.ArtistInfo.Name)
+		}
+	}
+	link := buildKey("v2", slide)
+	content += fmt.Sprintf("<a href='http://art.rumproarious.com/slide-editor/?data=%s'>edit</a>", link)
+	return fmt.Sprintf(`<section data-background-image="%s/images/%s" data-background-size="contain">%s</section>`, i.public, slide.ArchivedImage.Filename, content)
 }
 
 func (i *Indexer) uploadDoc(html string) {
