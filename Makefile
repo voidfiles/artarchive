@@ -82,3 +82,9 @@ run:
 
 scan:
 	$(WORKDIR)/$(PROJECT)_$(OS)_$(ARCH) -scan
+
+run_slide_editor:
+	(cd slide-editor && yarn start)
+
+deploy_slide_editor:
+	(cd slide-editor && yarn build)

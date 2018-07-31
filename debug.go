@@ -1,27 +1,28 @@
 package main
 
 import (
-	"fmt"
 	"log"
 )
 
+// DebugSlideConsumer keeps track of how many slides its seen
 type DebugSlideConsumer struct {
-	slideChan chan Slide
+	slideChan  chan Slide
+	slidesSeen int
 }
 
+// NewDebugSlideConsumer creates a new DebugSlideConsumer
 func NewDebugSlideConsumer(slideChan chan Slide) *DebugSlideConsumer {
 	return &DebugSlideConsumer{
 		slideChan: slideChan,
 	}
 }
 
+// Run runs the DebugSlideConsumer
 func (dsc *DebugSlideConsumer) Run() {
-	for slide := range dsc.slideChan {
-		log.Printf("Site: %s", slide.Site.Title)
-		log.Printf("Page: %s", slide.Page.URL)
-		log.Printf("Data Blob: %s", fmt.Sprintf("%s/slides/%s/data.json", "v2", slide.GUIDHash))
-		log.Printf("Image URL: %s", slide.SourceImageURL)
-		log.Printf("Image Info: %v", slide.ArchivedImage)
-		println("")
+	for _ = range dsc.slideChan {
+		dsc.slidesSeen++
+		if dsc.slidesSeen%100 == 0 {
+			log.Printf("Slides seen: %v", dsc.slidesSeen)
+		}
 	}
 }

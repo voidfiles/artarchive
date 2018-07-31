@@ -36,14 +36,23 @@ type ImageInfo struct {
 	Filename    string `json:"filename,omitempty"`
 }
 
+// ArtistInfo is important information about the artist who made the image
+type ArtistInfo struct {
+	Name        string   `json:"name,omitempty"`
+	ArtsyURL    string   `json:"artsy_url,omitempty"`
+	Description string   `json:"description,omitempty"`
+	URLS        []string `json:"urls,omitempty"`
+}
+
 // Slide bundles together important information about a find
 type Slide struct {
-	Site           Site       `json:"site,omitempty"`
-	Page           Page       `json:"page,omitempty"`
-	Content        string     `json:"content,omitempty"`
-	GUIDHash       string     `json:"guid_hash,omitempty"`
-	SourceImageURL string     `json:"source_image_url,omitempty"`
-	ArchivedImage  *ImageInfo `json:"archived_image,omitempty"`
+	Site           Site        `json:"site,omitempty"`
+	Page           Page        `json:"page,omitempty"`
+	Content        string      `json:"content,omitempty"`
+	GUIDHash       string      `json:"guid_hash,omitempty"`
+	SourceImageURL string      `json:"source_image_url,omitempty"`
+	ArchivedImage  *ImageInfo  `json:"archived_image,omitempty"`
+	ArtistInfo     *ArtistInfo `json:"artist_info,omitempty"`
 }
 
 // S3Interface holds methods we use to interact with s3
