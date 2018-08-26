@@ -19,7 +19,7 @@ functions:
     timeout: 250
     role: arn:aws:iam::140099371219:role/iam_for_lambda
     events:
-      - schedule: rate(5 minutes)
+      - schedule: rate(30 minutes)
     environment:
       LAMBDA: "finder"
   indexer:

@@ -45,7 +45,6 @@ class App extends Component {
     super(props);
     this.state = {};
     var parsed = queryString.parse(window.location.search);
-    console.log(parsed);
     if (!parsed.data) {
       this.state.error = "No data query param";
       return;
@@ -64,19 +63,20 @@ class App extends Component {
       s3BucketEndpoint: true,
     });
 
-    var _this = this;
     this.key = parsed.data;
-    window.fetch("http://art.rumproarious.com/" + parsed.data).then(function(resp) {
-      return resp.json()
-    }).then(function (data) {
-      _this.setState((state) => {
-        if (!data.artist) {
-          data.artist = {};
+    this.s3.getObject({
+      Bucket: "art.rumproarious.com",
+      Key: this.key,
+    }, (err, data) => {
+      var slide = JSON.parse(data.Body);
+      this.setState((state) => {
+        if (!slide.artist) {
+          slide.artist = {};
         }
-        state.slide = data;
+        state.slide = slide;
         return state;
       })
-    })
+    });
   }
 
   parseAuthToken(token) {
@@ -95,17 +95,41 @@ class App extends Component {
     this.parseAuthToken(token);
     this.forceUpdate();
   }
+  waitForUpdated = (cb, slideToSave, times) => {
+    times = times || 1;
+    if (times > 10 ) {
+      console.log("failed in time");
+      return;
+    }
+    var handleResp = (err, data) => {
+      var slideFromState = JSON.parse(data.Body);
+      console.log("checking for consistent read", slideFromState.edited, slideToSave.edited)
+      if (slideFromState.edited === slideToSave.edited) {
+        cb(slideToSave);
+      } else {
+        setTimeout(() => {
+          times += 1
+          this.waitForUpdated(cb, slideToSave, times)
+        }, 200);
+      }
+    };
+
+    this.s3.getObject({
+      Bucket: "art.rumproarious.com",
+      Key: this.key,
+    }, handleResp);
+  }
   saveSlide = (e) => {
     e.preventDefault();
-    var slide = Object.assign({}, this.state.slide);
-    if (!slide.artist) {
-      slide.artist = null;
+    var slideToSave = Object.assign({}, this.state.slide);
+    if (!slideToSave.artist) {
+      slideToSave.artist = null;
     }
-    slide.edited = (new Date()).toISOString();
-    console.log("About to save", JSON.stringify(slide))
+    slideToSave.edited = (new Date()).toISOString();
+    console.log("About to save", slideToSave)
     e.preventDefault();
     var params = {
-      Body: JSON.stringify(slide),
+      Body: JSON.stringify(slideToSave),
       Bucket: "art.rumproarious.com",
       Key: this.key,
       ACL: "public-read",
@@ -115,12 +139,15 @@ class App extends Component {
     this.s3.putObject(params, (err, data) => {
       if (err) {
         console.log(err, err.stack);
-      } else {
-        console.log(data);
+        return;
       }
-      this.setState((state) => {
-        state.slide = slide;
-      })
+
+      this.waitForUpdated((data) => {
+        this.setState((state) => {
+          state.slide = data;
+        })
+      }, slideToSave);
+
     });
   }
   render() {

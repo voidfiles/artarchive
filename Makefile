@@ -88,3 +88,4 @@ run_slide_editor:
 
 deploy_slide_editor:
 	(cd slide-editor && yarn build)
+	(cd slide-editor/build/ && aws s3 cp --recursive --acl=public-read . s3://art.rumproarious.com/slide-editor/)

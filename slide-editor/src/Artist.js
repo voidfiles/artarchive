@@ -40,7 +40,7 @@ class ArtsyURL extends Component {
         <ControlLabel>Artsy</ControlLabel>
         <FormControl
           type="text"
-          value={this.props.artsy_url}
+          value={this.props.url}
           placeholder="Enter text"
           onChange={this.handleChange}
         />
@@ -66,10 +66,10 @@ class ArtistWikipediaURL extends Component {
   render() {
     return (
       <FormGroup>
-        <ControlLabel>Artsy</ControlLabel>
+        <ControlLabel>Wikipedia</ControlLabel>
         <FormControl
           type="text"
-          value={this.props.artsy_url}
+          value={this.props.url}
           placeholder="Enter text"
           onChange={this.handleChange}
         />
