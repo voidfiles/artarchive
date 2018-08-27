@@ -119,10 +119,31 @@ class ArtistTwitterURL extends Component {
   }
 }
 
+class ArtistWebsiteURL extends Component {
+  handleChange = (e) => {
+    this.props.onValueChange(e.target.value);
+  }
+
+  render() {
+    return (
+      <FormGroup>
+        <ControlLabel>Website</ControlLabel>
+        <FormControl
+          type="text"
+          value={this.props.url}
+          placeholder="Enter text"
+          onChange={this.handleChange}
+        />
+      </FormGroup>
+    );
+  }
+}
+
 export {
   ArtistName,
   ArtsyURL,
   ArtistWikipediaURL,
   ArtistInstagramURL,
-  ArtistTwitterURL
+  ArtistTwitterURL,
+  ArtistWebsiteURL
 };

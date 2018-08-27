@@ -4,32 +4,9 @@ import './App.css';
 import Cookie from 'js-cookie';
 import queryString from './query-string.js';
 import {SiteTitle, SiteUrl} from './Site.js';
-import {ArtistName, ArtsyURL, ArtistWikipediaURL, ArtistInstagramURL, ArtistTwitterURL} from './Artist.js';
+import {ArtistName, ArtsyURL, ArtistWikipediaURL, ArtistInstagramURL, ArtistTwitterURL, ArtistWebsiteURL} from './Artist.js';
 import {Auth} from './Auth.js'
 import S3 from 'aws-sdk/clients/s3';
-
-// var SLIDE = {
-//   site: {
-//     title: "Imported",
-//     url: "http://exampl.org"
-//   },
-//   page: {
-//     title: "Dark freshness by Wassily KandinskySize: 19.7x26.1 cm",
-//     url: "http://artist-kandinsky.tumblr.com/post/156438435180",
-//     published: "2018-07-26T13:45:55.643125159-06:00",
-//     GUIDHash: "054fd38619b0b3752d79ca3d66182796"
-//   },
-//   content: "\u003cimg src=\"http://68.media.tumblr.com/b9553f51978e311916d81066c7defad4/tumblr_okfouiuALn1vbru6ho1_500.jpg\"\u003e\u003cbr\u003e\u003cbr\u003e\u003cp\u003e\u003cstrong\u003e\u003ca href=\"https://goo.gl/TIsfkS\"\u003eDark freshness\u003c/a\u003e\u003c/strong\u003e by \u003ca href=\"http://artist-kandinsky.tumblr.com\"\u003eWassily Kandinsky\u003c/a\u003e\u003c/p\u003e\u003cbr\u003eSize: 19.7x26.1 cm",
-//   guid_hash: "054fd38619b0b3752d79ca3d66182796.a98f339d491468f9372651f7f90e072ea3add478dea2075c8ba9181b038eef38",
-//   source_image_url: "http://68.media.tumblr.com/b9553f51978e311916d81066c7defad4/tumblr_okfouiuALn1vbru6ho1_1280.jpg",
-//   archived_image: {
-//     url: "http://68.media.tumblr.com/b9553f51978e311916d81066c7defad4/tumblr_okfouiuALn1vbru6ho1_1280.jpg",
-//     width: 496,
-//     height: 650,
-//     content_type: "image/jpg",
-//     filename: "b26b253e494787267bdedd29c47024deebe240cd55bdadae43fcf6b6236d9df3.jpg"
-//   }
-// };
 
 function bindThatUpdate(cls, updater) {
   return (value) => {
@@ -245,6 +222,11 @@ class App extends Component {
             <Row>
               <Col xs={12}>
                 <ArtistTwitterURL url={this.state.slide.artist.twitter_url} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.twitter_url = url)}></ArtistTwitterURL>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <ArtistWebsiteURL url={this.state.slide.artist.website_url} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.website_url = url)}></ArtistWebsiteURL>
               </Col>
             </Row>
             <Row>
