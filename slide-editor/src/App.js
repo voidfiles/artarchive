@@ -4,7 +4,7 @@ import './App.css';
 import Cookie from 'js-cookie';
 import queryString from './query-string.js';
 import {SiteTitle, SiteUrl} from './Site.js';
-import {ArtistName, ArtsyURL, ArtistWikipediaURL} from './Artist.js';
+import {ArtistName, ArtsyURL, ArtistWikipediaURL, ArtistInstagramURL, ArtistTwitterURL} from './Artist.js';
 import {Auth} from './Auth.js'
 import S3 from 'aws-sdk/clients/s3';
 
@@ -237,7 +237,16 @@ class App extends Component {
                 <ArtistWikipediaURL url={this.state.slide.artist.wikipedia_url} artist_name={this.state.slide.artist.name} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.wikipedia_url = url)}></ArtistWikipediaURL>
               </Col>
             </Row>
-
+            <Row>
+              <Col xs={12}>
+                <ArtistInstagramURL url={this.state.slide.artist.instagram_url} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.instagram_url = url)}></ArtistInstagramURL>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <ArtistTwitterURL url={this.state.slide.artist.twitter_url} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.twitter_url = url)}></ArtistTwitterURL>
+              </Col>
+            </Row>
             <Row>
               <Col xs={12}>
                 <h3>Image</h3>

@@ -79,4 +79,50 @@ class ArtistWikipediaURL extends Component {
   }
 }
 
-export {ArtistName, ArtsyURL, ArtistWikipediaURL};
+class ArtistInstagramURL extends Component {
+  handleChange = (e) => {
+    this.props.onValueChange(e.target.value);
+  }
+
+  render() {
+    return (
+      <FormGroup>
+        <ControlLabel>Instagram</ControlLabel>
+        <FormControl
+          type="text"
+          value={this.props.url}
+          placeholder="Enter text"
+          onChange={this.handleChange}
+        />
+      </FormGroup>
+    );
+  }
+}
+
+class ArtistTwitterURL extends Component {
+  handleChange = (e) => {
+    this.props.onValueChange(e.target.value);
+  }
+
+  render() {
+    return (
+      <FormGroup>
+        <ControlLabel>Twitter</ControlLabel>
+        <FormControl
+          type="text"
+          value={this.props.url}
+          placeholder="Enter text"
+          onChange={this.handleChange}
+        />
+      </FormGroup>
+    );
+  }
+}
+
+export {
+  ArtistName,
+  ArtsyURL,
+  ArtistWikipediaURL,
+  ArtistInstagramURL,
+  ArtistTwitterURL
+};
