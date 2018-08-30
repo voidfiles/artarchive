@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { FormGroup, ControlLabel, FormControl} from 'react-bootstrap';
+import {Row, Col, FormGroup, ControlLabel, FormControl} from 'react-bootstrap';
+import { ListEditor } from './List.js';
 
 class ArtistName extends Component {
 
@@ -139,11 +140,88 @@ class ArtistWebsiteURL extends Component {
   }
 }
 
-export {
-  ArtistName,
-  ArtsyURL,
-  ArtistWikipediaURL,
-  ArtistInstagramURL,
-  ArtistTwitterURL,
-  ArtistWebsiteURL
-};
+function bindThatUpdate(cls, updater) {
+  return (value) => {
+    cls.setState((state) => {
+      updater(state, value)
+      return state;
+    })
+  }
+}
+
+class Artist extends Component {
+  constructor(props) {
+    super(props);
+    this.state = this.props.artist;
+  }
+  handleChange = (updater) => {
+    return (value) => {
+      this.setState((state) => {
+        updater(state, value)
+        this.props.onValueChange(state);
+        return state;
+      });
+
+    }
+  }
+  render() {
+    return (
+      <div>
+        <Row>
+          <Col xs={12}>
+            <ArtistName name={this.state.name} onValueChange={this.handleChange((state, name) => state.name = name)}></ArtistName>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>
+            <ArtsyURL url={this.state.name.artsy_url} artist_name={this.state.name.name} onValueChange={this.handleChange((state, url) => state.artsy_url = url)}></ArtsyURL>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>
+            <ArtistWikipediaURL url={this.state.wikipedia_url} artist_name={this.state.name} onValueChange={this.handleChange((state, url) => state.wikipedia_url = url)}></ArtistWikipediaURL>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>
+            <ArtistInstagramURL url={this.state.instagram_url} onValueChange={this.handleChange((state, url) => state.instagram_url = url)}></ArtistInstagramURL>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>
+            <ArtistTwitterURL url={this.state.twitter_url} onValueChange={this.handleChange((state, url) => state.twitter_url = url)}></ArtistTwitterURL>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>
+            <ArtistWebsiteURL url={this.state.website_url} onValueChange={this.handleChange((state, url) => state.website_url = url)}></ArtistWebsiteURL>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>
+            <FormGroup>
+              <ControlLabel>Feeds</ControlLabel>
+              <ListEditor
+                list={this.state.feeds}
+                onValueChange={this.handleChange((state, feeds) => state.feeds = feeds)}
+                />
+            </FormGroup>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>
+            <FormGroup>
+              <ControlLabel>Sites</ControlLabel>
+              <ListEditor
+                list={this.state.sites}
+                onValueChange={this.handleChange((state, sites) => state.sites = sites)}
+                />
+            </FormGroup>
+          </Col>
+        </Row>
+      </div>
+    )
+  }
+}
+
+export {Artist};

@@ -4,7 +4,7 @@ import './App.css';
 import Cookie from 'js-cookie';
 import queryString from './query-string.js';
 import {SiteTitle, SiteUrl} from './Site.js';
-import {ArtistName, ArtsyURL, ArtistWikipediaURL, ArtistInstagramURL, ArtistTwitterURL, ArtistWebsiteURL} from './Artist.js';
+import {Artist} from './Artist.js';
 import {Auth} from './Auth.js'
 import S3 from 'aws-sdk/clients/s3';
 
@@ -49,6 +49,9 @@ class App extends Component {
       this.setState((state) => {
         if (!slide.artist) {
           slide.artist = {};
+        }
+        if (!slide.artists) {
+          slide.artists = [{}];
         }
         state.slide = slide;
         return state;
@@ -193,42 +196,12 @@ class App extends Component {
                 <p>Found on: {new Date(this.state.slide.page.published).toString()}</p>
               </Col>
             </Row>
-
             <Row>
               <Col xs={12}>
-                <h3>Artist</h3>
+                <h3>Artists</h3>
               </Col>
             </Row>
-            <Row>
-              <Col xs={12}>
-                <ArtistName name={this.state.slide.artist.name} onValueChange={bindThatUpdate(this, (state, name) => state.slide.artist.name = name)}></ArtistName>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={12}>
-                <ArtsyURL url={this.state.slide.artist.artsy_url} artist_name={this.state.slide.artist.name} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.artsy_url = url)}></ArtsyURL>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={12}>
-                <ArtistWikipediaURL url={this.state.slide.artist.wikipedia_url} artist_name={this.state.slide.artist.name} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.wikipedia_url = url)}></ArtistWikipediaURL>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={12}>
-                <ArtistInstagramURL url={this.state.slide.artist.instagram_url} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.instagram_url = url)}></ArtistInstagramURL>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={12}>
-                <ArtistTwitterURL url={this.state.slide.artist.twitter_url} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.twitter_url = url)}></ArtistTwitterURL>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={12}>
-                <ArtistWebsiteURL url={this.state.slide.artist.website_url} onValueChange={bindThatUpdate(this, (state, url) => state.slide.artist.website_url = url)}></ArtistWebsiteURL>
-              </Col>
-            </Row>
+            <Artist artist={this.state.slide.artist} onValueChange={bindThatUpdate(this, (state, artist) => state.artist = artist)} />
             <Row>
               <Col xs={12}>
                 <h3>Image</h3>
