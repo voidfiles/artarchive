@@ -54,11 +54,10 @@ var mainDoc = `<html>
 
 func (i *Indexer) slideToHTML(slide Slide) string {
 	content := ""
-	if slide.ArtistInfo != nil {
-		if slide.ArtistInfo.Name != "" {
-			content += fmt.Sprintf("<h1>%s</h1>", slide.ArtistInfo.Name)
-		}
+	for _, artistInfo := range slide.ArtistsInfo {
+		content += fmt.Sprintf("<h1>%s</h1>\n", artistInfo.Name)
 	}
+
 	link := buildKey("v2", slide)
 	content += fmt.Sprintf("<a href='http://art.rumproarious.com/slide-editor/?data=%s'>edit</a>", link)
 	return fmt.Sprintf(`<section data-background-image="%s/images/%s" data-background-size="contain">%s</section>`, i.public, slide.ArchivedImage.Filename, content)

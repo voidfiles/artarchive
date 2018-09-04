@@ -47,9 +47,6 @@ class App extends Component {
     }, (err, data) => {
       var slide = JSON.parse(data.Body);
       this.setState((state) => {
-        if (!slide.artist) {
-          slide.artist = {};
-        }
         if (!slide.artists) {
           slide.artists = [{}];
         }
@@ -150,6 +147,9 @@ class App extends Component {
       )
     };
 
+    var artists = this.state.slide.artists.map((artist, i) => {
+        return (<Artist key={i} artist={artist} onValueChange={bindThatUpdate(this, (state, artist) => state.slide.artists[i] = artist)} />)
+    });
     return (
       <div className="App">
         <Navbar>
@@ -201,7 +201,7 @@ class App extends Component {
                 <h3>Artists</h3>
               </Col>
             </Row>
-            <Artist artist={this.state.slide.artist} onValueChange={bindThatUpdate(this, (state, artist) => state.artist = artist)} />
+            {artists}
             <Row>
               <Col xs={12}>
                 <h3>Image</h3>

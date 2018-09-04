@@ -140,15 +140,6 @@ class ArtistWebsiteURL extends Component {
   }
 }
 
-function bindThatUpdate(cls, updater) {
-  return (value) => {
-    cls.setState((state) => {
-      updater(state, value)
-      return state;
-    })
-  }
-}
-
 class Artist extends Component {
   constructor(props) {
     super(props);
@@ -174,7 +165,7 @@ class Artist extends Component {
         </Row>
         <Row>
           <Col xs={12}>
-            <ArtsyURL url={this.state.name.artsy_url} artist_name={this.state.name.name} onValueChange={this.handleChange((state, url) => state.artsy_url = url)}></ArtsyURL>
+            <ArtsyURL url={this.state.artsy_url} artist_name={this.state.name} onValueChange={this.handleChange((state, url) => state.artsy_url = url)}></ArtsyURL>
           </Col>
         </Row>
         <Row>

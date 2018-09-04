@@ -41,11 +41,13 @@ type ArtistInfo struct {
 	Name         string   `json:"name,omitempty"`
 	ArtsyURL     string   `json:"artsy_url,omitempty"`
 	WikipediaURL string   `json:"wikipedia_url,omitempty"`
-	HomepageURL  string   `json:"homepage_url,omitempty"`
+	WebsiteURL   string   `json:"website_url,omitempty"`
 	FeedURL      string   `json:"feed_url,omitempty"`
 	InstagramURL string   `json:"instagram_url,omitempty"`
+	TwitterURL   string   `json:"twitter_url,omitempty"`
 	Description  string   `json:"description,omitempty"`
-	URLS         []string `json:"urls,omitempty"`
+	Feeds        []string `json:"feeds,omitempty"`
+	Sites        []string `json:"sites,omitempty"`
 }
 
 // WorkInfo is important information about the work
@@ -55,14 +57,15 @@ type WorkInfo struct {
 
 // Slide bundles together important information about a find
 type Slide struct {
-	Site           Site        `json:"site,omitempty"`
-	Page           Page        `json:"page,omitempty"`
-	Content        string      `json:"content,omitempty"`
-	GUIDHash       string      `json:"guid_hash,omitempty"`
-	SourceImageURL string      `json:"source_image_url,omitempty"`
-	ArchivedImage  *ImageInfo  `json:"archived_image,omitempty"`
-	ArtistInfo     *ArtistInfo `json:"artist_info,omitempty"`
-	WorkInfo       *WorkInfo   `json:"work_info,omitempty"`
+	Site           Site          `json:"site,omitempty"`
+	Page           Page          `json:"page,omitempty"`
+	Content        string        `json:"content,omitempty"`
+	GUIDHash       string        `json:"guid_hash,omitempty"`
+	SourceImageURL string        `json:"source_image_url,omitempty"`
+	ArchivedImage  *ImageInfo    `json:"archived_image,omitempty"`
+	ArtistInfo     *ArtistInfo   `json:"artist_info,omitempty"`
+	ArtistsInfo    []*ArtistInfo `json:"artists,omitempty"`
+	WorkInfo       *WorkInfo     `json:"work_info,omitempty"`
 }
 
 // S3Interface holds methods we use to interact with s3
