@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:4014584c076f25aaf35d9de36c79ae2d208bba32c780f405e3395dad79292e22"
+  name = "github.com/DATA-DOG/go-sqlmock"
+  packages = ["."]
+  pruneopts = ""
+  revision = "d76b18b42f285b792bf985118980ce9eacea9d10"
+  version = "v1.3.0"
+
+[[projects]]
   digest = "1:cca9333c25805680eba222804d2679d484ebdeb44e5aa0afecda12aa020ee434"
   name = "github.com/PuerkitoBio/goquery"
   packages = ["."]
@@ -21,6 +29,7 @@
   digest = "1:ff61b1cc37735f21fdcfc1674ece799a767b0fe552e9b6e2bc16f76d750227b6"
   name = "github.com/aws/aws-lambda-go"
   packages = [
+    "events",
     "lambda",
     "lambda/messages",
     "lambdacontext",
@@ -80,6 +89,17 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:209f213526a6c3f2d6ef431bb4303bd97fa4af8350e67b5b4d43b53fd469a005"
+  name = "github.com/fnproject/fdk-go"
+  packages = [
+    ".",
+    "utils",
+  ]
+  pruneopts = ""
+  revision = "1eb29530716f262bad5b83eb9a5b3f7483636949"
+
+[[projects]]
   digest = "1:858b7fe7b0f4bc7ef9953926828f2816ea52d01a88d72d1c45bc8c108f23c356"
   name = "github.com/go-ini/ini"
   packages = ["."]
@@ -93,6 +113,18 @@
   packages = ["."]
   pruneopts = ""
   revision = "0b12d6b5"
+
+[[projects]]
+  branch = "master"
+  digest = "1:617ee2434b77e911fa26b678730be9a617f75243b194eadc8201c8ac860844aa"
+  name = "github.com/jmoiron/sqlx"
+  packages = [
+    ".",
+    "reflectx",
+    "types",
+  ]
+  pruneopts = ""
+  revision = "0dae4fefe7c0e190f7b5a78dac28a1c82cc8d849"
 
 [[projects]]
   digest = "1:0ae05e34cbf90e309af02a3f04d2fc3373eb3bed967fd270f5a7cc221d40db0c"
@@ -174,13 +206,18 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/DATA-DOG/go-sqlmock",
     "github.com/PuerkitoBio/goquery",
+    "github.com/aws/aws-lambda-go/events",
     "github.com/aws/aws-lambda-go/lambda",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/awserr",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/aws/aws-sdk-go/service/s3/s3manager",
+    "github.com/fnproject/fdk-go",
+    "github.com/jmoiron/sqlx",
+    "github.com/jmoiron/sqlx/types",
     "github.com/mmcdole/gofeed",
     "github.com/stretchr/testify/assert",
     "golang.org/x/net/html",
