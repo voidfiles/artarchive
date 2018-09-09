@@ -25,7 +25,7 @@ func TestBuildKey(t *testing.T) {
 		slide := Slide{
 			GUIDHash: tt.guidHash,
 		}
-		o := buildKey(tt.prefix, slide)
+		o := BuildKey(tt.prefix, slide)
 		assert.Equal(t, tt.output, o)
 	}
 }

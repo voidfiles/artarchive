@@ -19,45 +19,46 @@ type Pipeline struct {
 
 func (p *Pipeline) Run() {
 	var wg = sync.WaitGroup{}
-	wg.Add(1)
+
 	start := slides.Binding{
-		In:  make(chan slides.Slide, 0),
 		Out: make(chan slides.Slide, 0),
 	}
+	p.Producer.Configure(start)
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		p.Producer.Configure(start)
 		p.Producer.Run()
 	}()
 
-	stepBinding := slides.Binding{
-		In:  start.Out,
-		Out: make(chan slides.Slide, 0),
-	}
+	var stepBinding = slides.Binding{}
 
-	for _, step := range p.Steps {
-		wg.Add(1)
-
-		go func(step SlideProcessor, stepBinding slides.Binding) {
-			defer wg.Done()
-			step.Configure(stepBinding)
-			step.Run()
-		}(step, stepBinding)
-
-		stepBinding = slides.Binding{
-			In:  stepBinding.Out,
-			Out: make(chan slides.Slide, 0),
+	for i, step := range p.Steps {
+		if i == 0 {
+			stepBinding = slides.Binding{
+				In:  start.Out,
+				Out: make(chan slides.Slide, 0),
+			}
+		} else {
+			stepBinding = slides.Binding{
+				In:  stepBinding.Out,
+				Out: make(chan slides.Slide, 0),
+			}
 		}
+		wg.Add(1)
+		step.Configure(stepBinding)
+		go func(step SlideProcessor) {
+			defer wg.Done()
+			step.Run()
+		}(step)
 	}
 
 	end := slides.Binding{
-		In:  stepBinding.Out,
-		Out: make(chan slides.Slide, 0),
+		In: stepBinding.Out,
 	}
+	p.Producer.Configure(end)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		p.Producer.Configure(end)
 		p.Consumer.Run()
 	}()
 

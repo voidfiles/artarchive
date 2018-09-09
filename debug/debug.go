@@ -26,7 +26,9 @@ func (dsc *DebugSlideConsumer) Configure(binding slides.Binding) {
 
 // Run runs the DebugSlideConsumer
 func (dsc *DebugSlideConsumer) Run() {
-	for _ = range dsc.binding.In {
+	for slide := range dsc.binding.In {
+		dsc.logger.Info().
+			Msgf("debugger: %v", slide.GUIDHash)
 		dsc.slidesSeen++
 		if dsc.slidesSeen%100 == 0 {
 			dsc.logger.Info().
