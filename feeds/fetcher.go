@@ -1,4 +1,4 @@
-package artarchive
+package feeds
 
 import (
 	"crypto/sha256"
@@ -8,13 +8,24 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/mmcdole/gofeed"
-	"github.com/voidfiles/artarchive/logging"
+	"github.com/rs/zerolog"
+	"github.com/voidfiles/artarchive/slides"
 	"golang.org/x/net/html"
 )
+
+type FeedToSlideProducer struct {
+	binding slides.Binding
+	feeds   []string
+	logger  zerolog.Logger
+}
+
+func NewFeedToSlideProducer(logger zerolog.Logger, feeds []string) *FeedToSlideProducer {
+	return &FeedToSlideProducer{
+		feeds:  feeds,
+		logger: logger,
+	}
+}
 
 func FetchFeed(feed_url string) gofeed.Feed {
 	fp := gofeed.NewParser()
@@ -86,7 +97,7 @@ func ResolveImageURLs(baseLink string, imageURLs []string) []string {
 	return resolvedImageURLs
 }
 
-func SlidesFromFeeditem(item *gofeed.Item, feed gofeed.Feed) []Slide {
+func SlidesFromFeeditem(item *gofeed.Item, feed gofeed.Feed) []slides.Slide {
 	content := BestContent(item.Content, item.Description)
 
 	imageURLs := FindImageUrls(content)
@@ -94,13 +105,13 @@ func SlidesFromFeeditem(item *gofeed.Item, feed gofeed.Feed) []Slide {
 
 	guidHash := sha256.Sum256([]byte(item.GUID))
 
-	itemSlides := make([]Slide, len(resolvedImageURLs))
-	site := Site{
+	itemSlides := make([]slides.Slide, len(resolvedImageURLs))
+	site := slides.Site{
 		Title: feed.Title,
 		URL:   feed.Link,
 	}
 	for i, imageURL := range resolvedImageURLs {
-		page := Page{
+		page := slides.Page{
 			Title:     item.Title,
 			URL:       item.Link,
 			Published: item.PublishedParsed,
@@ -108,7 +119,7 @@ func SlidesFromFeeditem(item *gofeed.Item, feed gofeed.Feed) []Slide {
 		}
 		urlHash := sha256.Sum256([]byte(imageURL))
 
-		itemSlides[i] = Slide{
+		itemSlides[i] = slides.Slide{
 			Site:           site,
 			Page:           page,
 			Content:        content,
@@ -119,67 +130,17 @@ func SlidesFromFeeditem(item *gofeed.Item, feed gofeed.Feed) []Slide {
 	return itemSlides
 }
 
-type FeedToSlideProducer struct {
-	slideChan chan Slide
-	feeds     []string
-}
-
-func NewFeedToSlideProducer(feeds []string, slideChan chan Slide) *FeedToSlideProducer {
-	return &FeedToSlideProducer{
-		slideChan: slideChan,
-		feeds:     feeds,
-	}
+func (ff *FeedToSlideProducer) Configure(binding slides.Binding) {
+	ff.binding = binding
 }
 
 func (ff *FeedToSlideProducer) Run() {
 	for _, feed := range FetchFeeds(ff.feeds) {
 		for _, item := range feed.Items {
 			for _, slide := range SlidesFromFeeditem(item, feed) {
-				ff.slideChan <- slide
+				ff.binding.Out <- slide
 			}
 		}
 	}
-	close(ff.slideChan)
-}
-
-type Step interface {
-	Configure(chan Slide)
-}
-
-func FeedRunner() {
-	sess, err := session.NewSession()
-	if err != nil {
-		panic(err)
-	}
-
-	sss := s3.New(sess)
-	logger := logging.NewLogger(false, nil)
-
-	feedToResolve := make(chan Slide, 0)
-	resolveToImageArchive := make(chan Slide, 0)
-	archiveToUpload := make(chan Slide, 0)
-	uploadToConsumer := make(chan Slide, 0)
-
-	// Fetch from feeds
-	rssFetcher := NewFeedToSlideProducer([]string{
-		"https://feedbin.com/starred/Cepxc9l63Bbn0RKef9J3MQ.xml",
-		"https://feedbin.com/starred/3d5um7AVLzNCL-mMtMxKeg.xml",
-	}, feedToResolve)
-
-	// Resolve found slides with known versions
-	slideStorage := NewSlideStorage(sss, "art.rumproarious.com", "v2")
-	resolveTransform := NewSlideResolverTransform(feedToResolve, resolveToImageArchive, slideStorage)
-
-	// Archive new images
-	s3Upload := s3manager.NewUploader(sess)
-	imageUploader := MustNewImageUploader(s3Upload, sss, "images", "art.rumproarious.com")
-	imageArchiver := NewSlideImageUploader(resolveToImageArchive, archiveToUpload, imageUploader)
-
-	// Upload slides
-	slideUploader := NewSlideUploader(archiveToUpload, uploadToConsumer, slideStorage)
-
-	// Dump things
-	debugConsumer := NewDebugSlideConsumer(logger, uploadToConsumer)
-	pipeline := NewPipeline(rssFetcher, debugConsumer, resolveTransform, imageArchiver, slideUploader)
-	pipeline.Run()
+	close(ff.binding.Out)
 }

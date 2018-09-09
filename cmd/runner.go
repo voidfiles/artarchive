@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-	"github.com/voidfiles/artarchive/artarchive"
+	"github.com/voidfiles/artarchive/doers"
 )
 
 func init() {
@@ -17,6 +17,6 @@ var runnerCmd = &cobra.Command{
 	Long:  `Indexes a set of feeds into s3`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Print("cmd: runner")
-		artarchive.FeedRunner()
+		doers.FeedRunner()
 	},
 }
