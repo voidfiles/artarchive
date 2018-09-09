@@ -27,19 +27,19 @@ func FeedRunner() {
 		"https://feedbin.com/starred/3d5um7AVLzNCL-mMtMxKeg.xml",
 	})
 
-	// // Resolve found slides with known versions
+	// Resolve found slides with known versions
 	slideStorage := slides.NewSlideStorage(sss, "art.rumproarious.com", "v2")
 	resolveTransform := slides.NewSlideResolverTransform(slideStorage)
-	//
+
 	// Archive new images
 	s3Upload := s3manager.NewUploader(sess)
 	imageUploader := images.MustNewImageUploader(s3Upload, sss, "images", "art.rumproarious.com")
 	imageArchiver := images.NewSlideImageUploader(imageUploader)
 
-	// // Upload slides
+	// Upload slides
 	slideUploader := slides.NewSlideUploader(slideStorage)
 
-	// // Dump things
+	// Dump things
 	debugConsumer := debug.NewDebugSlideConsumer(logger)
 	pipeline := pipeline.NewPipeline(rssFetcher, debugConsumer, resolveTransform, imageArchiver, slideUploader)
 	pipeline.Run()

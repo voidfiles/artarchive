@@ -1,7 +1,6 @@
 package pipeline
 
 import (
-	"log"
 	"sync"
 
 	"github.com/voidfiles/artarchive/slides"
@@ -31,7 +30,6 @@ func (p *Pipeline) Run() {
 			in = bindings[i-1].Out
 		}
 		out = make(chan slides.Slide, 0)
-		log.Printf("In: %v Out: %v", in, out)
 		bindings[i] = &slides.Binding{
 			In:  in,
 			Out: out,
@@ -40,7 +38,6 @@ func (p *Pipeline) Run() {
 
 	p.Producer.Configure(*bindings[0])
 
-	log.Printf("Running the producer")
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -58,7 +55,6 @@ func (p *Pipeline) Run() {
 		}(step)
 	}
 
-	log.Printf("Running the consumer")
 	p.Consumer.Configure(*bindings[len(p.Steps)+1])
 	wg.Add(1)
 	go func() {

@@ -192,7 +192,6 @@ func (sc *SlideImageUploader) Run() {
 				slide.ArchivedImage = imageInfo
 			}
 		}
-		log.Printf("image_uploader: %v", slide.GUIDHash)
 		sc.binding.Out <- slide
 	}
 

@@ -19,16 +19,14 @@ func NewDebugSlideConsumer(logger zerolog.Logger) *DebugSlideConsumer {
 	}
 }
 
-// Run runs the DebugSlideConsumer
+// Configure adds a channel bindings to the transformer
 func (dsc *DebugSlideConsumer) Configure(binding slides.Binding) {
 	dsc.binding = binding
 }
 
 // Run runs the DebugSlideConsumer
 func (dsc *DebugSlideConsumer) Run() {
-	for slide := range dsc.binding.In {
-		dsc.logger.Info().
-			Msgf("debugger: %v", slide.GUIDHash)
+	for _ = range dsc.binding.In {
 		dsc.slidesSeen++
 		if dsc.slidesSeen%100 == 0 {
 			dsc.logger.Info().

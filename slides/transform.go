@@ -1,7 +1,5 @@
 package slides
 
-import "log"
-
 type SlideResolverTransform struct {
 	binding Binding
 	ss      *SlideStorage
@@ -19,7 +17,6 @@ func (sc *SlideResolverTransform) Configure(binding Binding) {
 
 func (sc *SlideResolverTransform) Run() {
 	for slide := range sc.binding.In {
-		log.Printf("Transform: %v", slide.GUIDHash)
 		sc.binding.Out <- sc.ss.Resolve(slide)
 	}
 	close(sc.binding.Out)

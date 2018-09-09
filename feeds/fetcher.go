@@ -138,7 +138,6 @@ func (ff *FeedToSlideProducer) Run() {
 	for _, feed := range FetchFeeds(ff.feeds) {
 		for _, item := range feed.Items {
 			for _, slide := range SlidesFromFeeditem(item, feed) {
-				ff.logger.Info().Msgf("fetcher: %v", slide.GUIDHash)
 				ff.binding.Out <- slide
 			}
 		}
