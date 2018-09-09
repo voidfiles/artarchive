@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"log"
 	"sync"
 
 	"github.com/voidfiles/artarchive/slides"
@@ -20,42 +21,45 @@ type Pipeline struct {
 func (p *Pipeline) Run() {
 	var wg = sync.WaitGroup{}
 
-	start := slides.Binding{
-		Out: make(chan slides.Slide, 0),
+	bindings := make([]*slides.Binding, len(p.Steps)+2)
+	var in chan slides.Slide
+	var out chan slides.Slide
+	for i := range bindings {
+		if i == 0 {
+			in = nil
+		} else {
+			in = bindings[i-1].Out
+		}
+		out = make(chan slides.Slide, 0)
+		log.Printf("In: %v Out: %v", in, out)
+		bindings[i] = &slides.Binding{
+			In:  in,
+			Out: out,
+		}
 	}
-	p.Producer.Configure(start)
+
+	p.Producer.Configure(*bindings[0])
+
+	log.Printf("Running the producer")
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		p.Producer.Run()
 	}()
 
-	var stepBinding = slides.Binding{}
-
 	for i, step := range p.Steps {
-		if i == 0 {
-			stepBinding = slides.Binding{
-				In:  start.Out,
-				Out: make(chan slides.Slide, 0),
-			}
-		} else {
-			stepBinding = slides.Binding{
-				In:  stepBinding.Out,
-				Out: make(chan slides.Slide, 0),
-			}
-		}
+
+		step.Configure(*bindings[i+1])
+
 		wg.Add(1)
-		step.Configure(stepBinding)
 		go func(step SlideProcessor) {
 			defer wg.Done()
 			step.Run()
 		}(step)
 	}
 
-	end := slides.Binding{
-		In: stepBinding.Out,
-	}
-	p.Producer.Configure(end)
+	log.Printf("Running the consumer")
+	p.Consumer.Configure(*bindings[len(p.Steps)+1])
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
