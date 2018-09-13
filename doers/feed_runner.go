@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/voidfiles/artarchive/config"
 	"github.com/voidfiles/artarchive/debug"
 	"github.com/voidfiles/artarchive/feeds"
 	"github.com/voidfiles/artarchive/images"
@@ -13,6 +14,7 @@ import (
 )
 
 func FeedRunner() {
+	appConfig := config.NewAppConfig()
 	sess, err := session.NewSession()
 	if err != nil {
 		panic(err)
@@ -28,12 +30,12 @@ func FeedRunner() {
 	})
 
 	// Resolve found slides with known versions
-	slideStorage := slides.NewSlideStorage(sss, "art.rumproarious.com", "v2")
+	slideStorage := slides.NewSlideStorage(sss, appConfig.Bucket, appConfig.Version)
 	resolveTransform := slides.NewSlideResolverTransform(slideStorage)
 
 	// Archive new images
 	s3Upload := s3manager.NewUploader(sess)
-	imageUploader := images.MustNewImageUploader(s3Upload, sss, "images", "art.rumproarious.com")
+	imageUploader := images.MustNewImageUploader(s3Upload, sss, appConfig.ImagePath, appConfig.Bucket)
 	imageArchiver := images.NewSlideImageUploader(imageUploader)
 
 	// Upload slides

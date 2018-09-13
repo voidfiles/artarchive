@@ -59,7 +59,7 @@ func (i *Indexer) slideToHTML(slide slides.Slide) string {
 	}
 
 	link := slides.BuildKey("v2", slide)
-	content += fmt.Sprintf("<a href='http://art.rumproarious.com/slide-editor/?data=%s'>edit</a>", link)
+	content += fmt.Sprintf("<a href='%s/slide-editor/?data=%s'>edit</a>", i.public, link)
 	return fmt.Sprintf(`<section data-background-image="%s/images/%s" data-background-size="contain">%s</section>`, i.public, slide.ArchivedImage.Filename, content)
 }
 
