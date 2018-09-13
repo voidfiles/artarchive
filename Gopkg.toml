@@ -21,6 +21,6 @@
 #  version = "2.4.0"
 
 [metadata.heroku]
-  root-package = "github.com/voidfiles/a"
-  go-version = "go1.9.3"
+  root-package = "github.com/voidfiles/artarchive"
+  go-version = "go1.11"
   install = [ "./..." ]
