@@ -23,6 +23,7 @@ type AppConfig struct {
 	Bucket    string
 	Version   string
 	ImagePath string
+	Port      string
 	Database  DatabaseConfig
 }
 
@@ -39,6 +40,7 @@ func NewAppConfig() AppConfig {
 		Bucket:    v.GetString("BUCKET"),
 		Version:   v.GetString("VERSION"),
 		ImagePath: v.GetString("IMAGE_PATH"),
+		Port:      v.GetString("PORT"),
 		Database: DatabaseConfig{
 			Type:        "postgres",
 			DatabaseURL: v.GetString("DATABASE_URL"),

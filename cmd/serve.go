@@ -3,19 +3,15 @@ package cmd
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/heroku/x/hmetrics/onload"
+	_ "github.com/heroku/x/hmetrics/onload" // Keeps track of go stats
 	"github.com/spf13/cobra"
+	"github.com/voidfiles/artarchive/config"
 )
 
 func serve() {
-	port := os.Getenv("PORT")
-
-	if port == "" {
-		log.Fatal("$PORT must be set")
-	}
+	appConfig := config.NewAppConfig()
 
 	router := gin.New()
 	router.Use(gin.Logger())
@@ -24,7 +20,7 @@ func serve() {
 		c.JSON(http.StatusOK, "")
 	})
 
-	router.Run(":" + port)
+	router.Run(":" + appConfig.Port)
 }
 
 func init() {
