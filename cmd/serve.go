@@ -16,7 +16,11 @@ func serve() {
 	router := gin.New()
 	router.Use(gin.Logger())
 
-	router.GET("/", func(c *gin.Context) {
+	authorized := router.Group("/", gin.BasicAuth(gin.Accounts{
+		"admin": appConfig.AuthPassword,
+	}))
+
+	authorized.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "")
 	})
 
