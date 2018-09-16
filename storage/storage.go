@@ -29,8 +29,8 @@ type storageDocument struct {
 // MigrateDB will implment schema changes
 func (i *ItemStorage) MigrateDB() {
 	tx := i.db.MustBegin()
-	tx.MustExec("CREATE SEQUENCE item_id_seq;")
-	tx.MustExec(`CREATE TABLE items (
+	tx.MustExec("CREATE SEQUENCE IF NOT EXISTS item_id_seq;")
+	tx.MustExec(`CREATE TABLE IF NOT EXISTS  items (
       id bigint NOT NULL DEFAULT nextval('item_id_seq'),
       key varchar(500) NULL,
       data jsonb DEFAULT '{}',
