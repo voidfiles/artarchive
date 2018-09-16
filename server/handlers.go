@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/rs/zerolog"
 	"github.com/voidfiles/artarchive/slides"
 	"github.com/voidfiles/artarchive/storage"
 )
@@ -25,17 +26,20 @@ type LocalSlideStore interface {
 type ServerHandlers struct {
 	slideS3Storage RemoteSlideStore
 	slideDbSTorage LocalSlideStore
+	logger         zerolog.Logger
 }
 
-func MustNewServerHandlers(slideS3Storage RemoteSlideStore, slideDbSTorage LocalSlideStore) *ServerHandlers {
+func MustNewServerHandlers(logger zerolog.Logger, slideS3Storage RemoteSlideStore, slideDbSTorage LocalSlideStore) *ServerHandlers {
 	return &ServerHandlers{
 		slideDbSTorage: slideDbSTorage,
 		slideS3Storage: slideS3Storage,
+		logger:         logger,
 	}
 }
 
 func (sh *ServerHandlers) GetSlide(c RequestContext) {
 	key := c.Param("key")
+	sh.logger.Info().Str("key", key).Msgf("Loooking for slide by key: %s", key)
 	if key == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]string{
 			"error": "missing-param",

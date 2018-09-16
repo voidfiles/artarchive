@@ -23,7 +23,7 @@ func bind(f ContextFunc) func(*gin.Context) {
 	}
 }
 
-func serve() {
+func Serve() {
 	appConfig := config.NewAppConfig()
 	logger := logging.NewLogger(false, os.Stdout)
 
@@ -50,12 +50,12 @@ func serve() {
 
 	slidesDBStorage := storage.MustNewItemStorage(db)
 	slideS3Storage := slides.NewSlideStorage(sss, appConfig.Bucket, appConfig.Version)
-	handlers := MustNewServerHandlers(slideS3Storage, slidesDBStorage)
+	handlers := MustNewServerHandlers(logger, slideS3Storage, slidesDBStorage)
 
 	authorized.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "ok")
 	})
-	authorized.GET("/slides/*key", bind(handlers.GetSlide))
+	authorized.GET("/slides/:key", bind(handlers.GetSlide))
 
 	router.Run(":" + appConfig.Port)
 }

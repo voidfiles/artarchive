@@ -2,8 +2,10 @@ package server
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/voidfiles/artarchive/slides"
 	"github.com/voidfiles/artarchive/storage"
@@ -48,7 +50,7 @@ func (m *MockRequestContext) JSON(code int, data interface{}) {
 
 func TestMustNewServerHandlers(t *testing.T) {
 	mockStore := &MockSlideStore{}
-	subject := MustNewServerHandlers(mockStore, mockStore)
+	subject := MustNewServerHandlers(zerolog.New(os.Stdout), mockStore, mockStore)
 	assert.IsType(t, &ServerHandlers{}, subject)
 }
 
@@ -74,7 +76,7 @@ func TestGetSlide(t *testing.T) {
 			slide: test.mockSlide,
 			err:   test.mockError,
 		}
-		handlers := MustNewServerHandlers(mockStore, mockStore)
+		handlers := MustNewServerHandlers(zerolog.New(os.Stderr), mockStore, mockStore)
 		c := &MockRequestContext{
 			param: test.key,
 		}
