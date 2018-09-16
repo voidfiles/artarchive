@@ -8,6 +8,10 @@ import (
 	"github.com/jmoiron/sqlx/types"
 )
 
+var (
+	ErrMissingSlide = fmt.Errorf("store err: missing")
+)
+
 // ItemStorage manages storage of items to db
 type ItemStorage struct {
 	db *sqlx.DB
@@ -76,7 +80,7 @@ func (i *ItemStorage) FindByKey(key string) ([]byte, error) {
 	tx.Commit()
 
 	if target.ID == 0 {
-		return []byte(""), fmt.Errorf("store err: missing")
+		return []byte(""), ErrMissingSlide
 	}
 
 	data, err := target.Data.MarshalJSON()

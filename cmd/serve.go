@@ -3,18 +3,22 @@ package cmd
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload" // Keeps track of go stats
 	"github.com/spf13/cobra"
 	"github.com/voidfiles/artarchive/config"
+	"github.com/voidfiles/artarchive/logging"
 )
 
 func serve() {
 	appConfig := config.NewAppConfig()
-
+	logger := logging.NewLogger(false, os.Stdout)
+	ginLogger := logging.MustNewGinLogger(logger, "gin")
 	router := gin.New()
-	router.Use(gin.Logger())
+
+	router.Use(ginLogger.Logger())
 
 	authorized := router.Group("/", gin.BasicAuth(gin.Accounts{
 		"admin": appConfig.AuthPassword,
