@@ -18,15 +18,11 @@ functions:
     handler: _work/artarchive_linux_amd64
     timeout: 250
     role: arn:aws:iam::140099371219:role/iam_for_lambda
-    events:
-      - schedule: rate(30 minutes)
     environment:
       LAMBDA: "finder"
   indexer:
     handler: _work/artarchive_linux_amd64
     timeout: 250
     role: arn:aws:iam::140099371219:role/iam_for_lambda
-    events:
-      - schedule: rate(60 minutes)
     environment:
       LAMBDA: "indexer"
