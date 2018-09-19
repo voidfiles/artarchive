@@ -80,7 +80,7 @@ class App extends Component {
     e.preventDefault();
     var slideToSave = Object.assign({}, this.state.slide);
     e.preventDefault();
-    this.objectClient.updateObject(this.key, slideToSave).then((data) => {
+    this.objectClient.saveObject(this.key, slideToSave).then((data) => {
       this.setState((state) => {
         state.slide = data;
       })
