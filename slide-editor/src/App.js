@@ -6,7 +6,6 @@ import queryString from './query-string.js';
 import {SiteTitle, SiteUrl} from './Site.js';
 import {Artist} from './Artist.js';
 import {Auth} from './Auth.js'
-import S3 from 'aws-sdk/clients/s3';
 
 function bindThatUpdate(cls, updater) {
   return (value) => {
@@ -17,50 +16,55 @@ function bindThatUpdate(cls, updater) {
   }
 }
 
+class ObjectClient extends Component {
+  constructor(baseURL, token) {
+    super();
+    this.headers = new Headers();
+
+    this.headers.append('Content-Type', 'application/json');
+    this.headers.append('Accepts', 'application/json');
+    this.headers.append('Authorization', 'Basic ' + btoa(token));
+    this.baseURL = baseURL
+  }
+
+  getObject = (key) => {
+    return fetch(this.baseURL + '/slides/' + key, {
+     method: 'GET',
+     headers: this.headers,
+   }).then((response) => response.json());
+  }
+
+  saveObject = (key, data) => {
+    return fetch(this.baseURL + '/slides/' + key, {
+     method: 'POST',
+     headers: this.headers,
+     body: JSON.stringify(data)
+   }).then((response) => response.json());
+  }
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {};
     var parsed = queryString.parse(window.location.search);
-    if (!parsed.data) {
-      this.state.error = "No data query param";
+    if (!parsed.key) {
+      this.state.error = "No key query param";
       return;
     }
 
-    this.authCookie = Cookie.get('auth');
-    if (this.authCookie) {
-      this.parseAuthToken(this.authCookie);
-    }
-
-    this.s3 = new S3({
-      endpoint: "http://art.rumproarious.com.s3.amazonaws.com",
-      region: "us-west-2",
-      accessKeyId: this.aws_access_key_id,
-      secretAccessKey: this.aws_secret_access_key,
-      s3BucketEndpoint: true,
-    });
-
-    this.key = parsed.data;
-    this.s3.getObject({
-      Bucket: "art.rumproarious.com",
-      Key: this.key,
-    }, (err, data) => {
-      var slide = JSON.parse(data.Body);
+    this.authCookie = Cookie.get('auth')
+    this.objectClient = new ObjectClient("https://blooming-sands-87266.herokuapp.com", this.authCookie)
+    this.key = parsed.key;
+    this.objectClient.getObject(this.key).then((slide) => {
       this.setState((state) => {
         if (!slide.artists) {
           slide.artists = [{}];
         }
         state.slide = slide;
         return state;
-      })
+      });
     });
-  }
-
-  parseAuthToken(token) {
-    var parts = token.split(":");
-    this.aws_access_key_id = parts[0];
-    this.aws_secret_access_key = parts[1];
-
   }
 
   handleTokenChange = (token) => {
@@ -69,62 +73,17 @@ class App extends Component {
     }
     this.authCookie = token;
     Cookie.set('auth', token);
-    this.parseAuthToken(token);
+    this.objectClient = new ObjectClient("https://blooming-sands-87266.herokuapp.com", token)
     this.forceUpdate();
-  }
-  waitForUpdated = (cb, slideToSave, times) => {
-    times = times || 1;
-    if (times > 10 ) {
-      console.log("failed in time");
-      return;
-    }
-    var handleResp = (err, data) => {
-      var slideFromState = JSON.parse(data.Body);
-      console.log("checking for consistent read", slideFromState.edited, slideToSave.edited)
-      if (slideFromState.edited === slideToSave.edited) {
-        cb(slideToSave);
-      } else {
-        setTimeout(() => {
-          times += 1
-          this.waitForUpdated(cb, slideToSave, times)
-        }, 200);
-      }
-    };
-
-    this.s3.getObject({
-      Bucket: "art.rumproarious.com",
-      Key: this.key,
-    }, handleResp);
   }
   saveSlide = (e) => {
     e.preventDefault();
     var slideToSave = Object.assign({}, this.state.slide);
-    if (!slideToSave.artist) {
-      slideToSave.artist = null;
-    }
-    slideToSave.edited = (new Date()).toISOString();
-    console.log("About to save", slideToSave)
     e.preventDefault();
-    var params = {
-      Body: JSON.stringify(slideToSave),
-      Bucket: "art.rumproarious.com",
-      Key: this.key,
-      ACL: "public-read",
-      ContentType: "application/json",
-    };
-
-    this.s3.putObject(params, (err, data) => {
-      if (err) {
-        console.log(err, err.stack);
-        return;
-      }
-
-      this.waitForUpdated((data) => {
-        this.setState((state) => {
-          state.slide = data;
-        })
-      }, slideToSave);
-
+    this.objectClient.updateObject(this.key, slideToSave).then((data) => {
+      this.setState((state) => {
+        state.slide = data;
+      })
     });
   }
   render() {
