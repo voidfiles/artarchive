@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/jmoiron/sqlx"
+	cors "github.com/rs/cors/wrapper/gin"
 	"github.com/voidfiles/artarchive/config"
 	"github.com/voidfiles/artarchive/logging"
 	"github.com/voidfiles/artarchive/slides"
@@ -45,7 +46,7 @@ func Serve() {
 	router := gin.New()
 
 	router.Use(ginLogger.Logger())
-
+	router.Use(cors.AllowAll())
 	authorized := router.Group("/", gin.BasicAuth(gin.Accounts{
 		"admin": appConfig.AuthPassword,
 	}))

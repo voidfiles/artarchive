@@ -137,6 +137,25 @@
   version = "v1.38.1"
 
 [[projects]]
+  digest = "1:709292c015123a3bc69ea970dc9abd6667170e7fbf5cdeb10c6d14b250d3385f"
+  name = "github.com/go-playground/locales"
+  packages = [
+    ".",
+    "currency",
+  ]
+  pruneopts = ""
+  revision = "f63010822830b6fe52288ee52d5a1151088ce039"
+  version = "v0.12.1"
+
+[[projects]]
+  digest = "1:7ca0f6f2a364f603e843763d35c979b595d71159982791de27f9ec40d532876b"
+  name = "github.com/go-playground/universal-translator"
+  packages = ["."]
+  pruneopts = ""
+  revision = "b32fa301c9fe55953584134cb6853a13c87ec0a1"
+  version = "v0.16.0"
+
+[[projects]]
   digest = "1:3dd078fda7500c341bc26cfbc6c6a34614f295a2457149fc1045cab767cbcf18"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
@@ -181,6 +200,14 @@
   pruneopts = ""
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:33b76de987ff2353a0bef8f81b15b3ae462f7c47a0fd0e90798de1100ce34aad"
+  name = "github.com/jasonlvhit/gocron"
+  packages = ["."]
+  pruneopts = ""
+  revision = "54194c9749d48b073c9aeb2c787b6882e95dd0cd"
 
 [[projects]]
   digest = "1:6f49eae0c1e5dab1dafafee34b207aeb7a42303105960944828c2079b92fc88e"
@@ -297,6 +324,17 @@
   pruneopts = ""
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  digest = "1:78c9cf43ddeacd0e472f412082227a0fac2ae107ee60e9112156f9371f9912cf"
+  name = "github.com/rs/cors"
+  packages = [
+    ".",
+    "wrapper/gin",
+  ]
+  pruneopts = ""
+  revision = "3fb1b69b103a84de38a19c3c6ec073dd6caa4d3f"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:aed55b9be75ddc9942b4a19c2ca3c43d7c9d3f3c6b1ff372b0728c4df4037e6a"
@@ -436,6 +474,14 @@
   version = "v8.18.2"
 
 [[projects]]
+  digest = "1:1bf3b097be03093777f984614d67c4550f8295cdf3b6eb8759ed08e97d417c40"
+  name = "gopkg.in/go-playground/validator.v9"
+  packages = ["."]
+  pruneopts = ""
+  revision = "e69e9a28bb62b977fdc58d051f1bb477b7cbe486"
+  version = "v9.21.0"
+
+[[projects]]
   digest = "1:f0620375dd1f6251d9973b5f2596228cc8042e887cd7f827e4220bc1ce8c30e2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -458,17 +504,21 @@
     "github.com/aws/aws-sdk-go/service/s3/s3manager",
     "github.com/fnproject/fdk-go",
     "github.com/gin-gonic/gin",
+    "github.com/gin-gonic/gin/binding",
     "github.com/heroku/x/hmetrics/onload",
+    "github.com/jasonlvhit/gocron",
     "github.com/jmoiron/sqlx",
     "github.com/jmoiron/sqlx/types",
     "github.com/lib/pq",
     "github.com/mmcdole/gofeed",
+    "github.com/rs/cors/wrapper/gin",
     "github.com/rs/zerolog",
     "github.com/rs/zerolog/log",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
     "github.com/stretchr/testify/assert",
     "golang.org/x/net/html",
+    "gopkg.in/go-playground/validator.v9",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
