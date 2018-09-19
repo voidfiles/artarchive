@@ -162,20 +162,21 @@ func TestFindByKey(t *testing.T) {
 
 }
 
-func TestUpdateFalg(t *testing.T) {
-
+func TestUpdateByKey(t *testing.T) {
 	testTable := []struct {
-		key  string
-		flag string
+		key        string
+		dataIn     map[string]string
+		dataInsert []byte
+		err        error
 	}{
 		{
 			"a-key",
-			"image_updated",
-		}, {
-			"a-key",
-			"image_updated",
+			map[string]string{"key": "123"},
+			[]byte(`{"key":"123"}`),
+			nil,
 		},
 	}
+
 	for _, test := range testTable {
 		mockDB, mock, err := sqlmock.New()
 		if err != nil {
@@ -184,14 +185,16 @@ func TestUpdateFalg(t *testing.T) {
 		defer mockDB.Close()
 		sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
 		store := MustNewItemStorage(sqlxDB)
-
 		mock.ExpectBegin()
-		mock.ExpectExec("UPDATE items SET").
-			WithArgs(test.flag, test.key).
+		mock.ExpectExec("UPDATE items").
+			WithArgs(test.dataInsert, test.key).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 		mock.ExpectClose()
-		store.UpdateFlag(test.flag, test.key)
+		err = store.UpdateByKey(test.key, test.dataIn)
+
+		if err != nil {
+			assert.Equal(t, test.err, err)
+		}
 
 	}
-
 }

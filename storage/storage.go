@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
@@ -91,11 +92,22 @@ func (i *ItemStorage) FindByKey(key string) ([]byte, error) {
 	return data, nil
 }
 
-//FindByKey finds an item in the database
-func (i *ItemStorage) UpdateFlag(flag, key string) error {
+// UpdateByKey will store an item in the database
+func (i *ItemStorage) UpdateByKey(key string, data interface{}) error {
+	b, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("store err: %v", err)
+	}
+
+	j := types.JSONText(string(b))
+	log.Printf("%v", j)
+	v, err := j.Value()
+	if err != nil {
+		return fmt.Errorf("store err: %v", err)
+	}
 
 	tx := i.db.MustBegin()
-	tx.MustExec("UPDATE items SET ($1) VALUES (true) WHERE key = $2;", flag, key)
+	tx.MustExec("UPDATE items SET data = $1 WHERE key = $2", v, key) // Good protection kind of  AND data->>'guid_hash' = $2;
 	tx.Commit()
 
 	return nil

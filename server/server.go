@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/jmoiron/sqlx"
 	"github.com/voidfiles/artarchive/config"
 	"github.com/voidfiles/artarchive/logging"
@@ -24,6 +25,7 @@ func bind(f ContextFunc) func(*gin.Context) {
 }
 
 func Serve() {
+	binding.Validator = new(defaultValidator)
 	appConfig := config.NewAppConfig()
 	logger := logging.NewLogger(false, os.Stdout)
 
@@ -56,6 +58,7 @@ func Serve() {
 		c.JSON(http.StatusOK, "ok")
 	})
 	authorized.GET("/slides/:key", bind(handlers.GetSlide))
+	authorized.PUT("/slides/:key", bind(handlers.UpdateSlide))
 
 	router.Run(":" + appConfig.Port)
 }

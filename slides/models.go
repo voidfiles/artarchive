@@ -11,30 +11,30 @@ type Binding struct {
 
 // Site contains identifying info about what parent site an image was found
 type Site struct {
-	Title string `json:"title"`
-	URL   string `json:"url"`
+	Title string `json:"title,omitempty" binding:"required"`
+	URL   string `json:"url,omitempty" binding:"required"`
 }
 
 // Page contains identifying info about where an image was found
 type Page struct {
-	Title     string     `json:"title"`
-	URL       string     `json:"url"`
-	Published *time.Time `json:"published"`
-	GUIDHash  string
+	Title     string     `json:"title,omitempty" binding:"required"`
+	URL       string     `json:"url,omitempty" binding:"required"`
+	Published *time.Time `json:"published,omitempty"`
+	GUIDHash  string     `json:"guid_hash,omitempty"`
 }
 
 // ImageInfo is important information about a single image
 type ImageInfo struct {
-	URL         string `json:"url,omitempty"`
-	Width       int    `json:"width,omitempty"`
-	Height      int    `json:"height,omitempty"`
-	ContentType string `json:"content_type,omitempty"`
-	Filename    string `json:"filename,omitempty"`
+	URL         string `json:"url,omitempty" binding:"required"`
+	Width       int    `json:"width,omitempty" binding:"required"`
+	Height      int    `json:"height,omitempty" binding:"required"`
+	ContentType string `json:"content_type,omitempty" binding:"required"`
+	Filename    string `json:"filename,omitempty" binding:"required"`
 }
 
 // ArtistInfo is important information about the artist who made the image
 type ArtistInfo struct {
-	Name         string   `json:"name,omitempty"`
+	Name         string   `json:"name,omitempty" validate:"required"`
 	ArtsyURL     string   `json:"artsy_url,omitempty"`
 	WikipediaURL string   `json:"wikipedia_url,omitempty"`
 	WebsiteURL   string   `json:"website_url,omitempty"`
@@ -56,7 +56,8 @@ type Slide struct {
 	Site           Site          `json:"site,omitempty"`
 	Page           Page          `json:"page,omitempty"`
 	Content        string        `json:"content,omitempty"`
-	GUIDHash       string        `json:"guid_hash,omitempty"`
+	Edited         time.Time     `json:"edited,omitempty"`
+	GUIDHash       string        `json:"guid_hash,omitempty" binding:"required"`
 	SourceImageURL string        `json:"source_image_url,omitempty"`
 	ArchivedImage  *ImageInfo    `json:"archived_image,omitempty"`
 	ArtistInfo     *ArtistInfo   `json:"artist_info,omitempty"`

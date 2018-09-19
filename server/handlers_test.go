@@ -21,7 +21,15 @@ func (m *MockSlideStore) FindByKey(key string) ([]byte, error) {
 	return m.data, m.err
 }
 
+func (m *MockSlideStore) UpdateByKey(key string, data interface{}) error {
+	return nil
+}
+
 func (m *MockSlideStore) Resolve(s slides.Slide) slides.Slide {
+	return m.slide
+}
+
+func (m *MockSlideStore) Upload(s slides.Slide) slides.Slide {
 	return m.slide
 }
 
@@ -46,6 +54,10 @@ func (m *MockRequestContext) JSON(code int, data interface{}) {
 	m.aborted = false
 	m.code = code
 	m.data = data
+}
+
+func (m *MockRequestContext) ShouldBindJSON(obj interface{}) error {
+	return nil
 }
 
 func TestMustNewServerHandlers(t *testing.T) {
@@ -86,5 +98,35 @@ func TestGetSlide(t *testing.T) {
 		assert.Equal(t, test.expectAbort, c.aborted)
 		assert.Equal(t, test.code, c.code)
 		assert.Equal(t, test.data, c.data)
+	}
+}
+
+func TestUpdateSlide(t *testing.T) {
+	testTable := []struct {
+		key         string
+		expectAbort bool
+		code        int
+		data        interface{}
+		mockData    []byte
+		mockSlide   slides.Slide
+		mockError   error
+	}{
+		{"a key", false, 200, slides.Slide{}, []byte("{\"key\": \"123\"}"), slides.Slide{}, nil},
+	}
+	for _, test := range testTable {
+		mockStore := &MockSlideStore{
+			data:  test.mockData,
+			slide: test.mockSlide,
+			err:   test.mockError,
+		}
+		handlers := MustNewServerHandlers(zerolog.New(os.Stderr), mockStore, mockStore)
+		c := &MockRequestContext{
+			param: test.key,
+		}
+
+		handlers.UpdateSlide(c)
+		assert.Equal(t, test.key, c.param)
+		assert.Equal(t, test.expectAbort, c.aborted)
+		assert.Equal(t, test.code, c.code)
 	}
 }
