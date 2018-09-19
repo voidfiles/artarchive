@@ -11,5 +11,9 @@ func RunCron() {
 		log.Printf("Running feed runner")
 		FeedRunner()
 	})
+	gocron.Every(60).Minutes().Do(func() {
+		log.Printf("Running indexer")
+		RunScanner()
+	})
 	<-gocron.Start()
 }
