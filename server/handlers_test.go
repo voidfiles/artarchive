@@ -36,6 +36,10 @@ func (m *MockSlideStore) List(after int64) ([]slides.Slide, int64, error) {
 	return []slides.Slide{m.slide}, 0, m.err
 }
 
+func (m *MockSlideStore) FindSites(query string, after int64) ([]slides.Site, int64, error) {
+	return []slides.Site{}, 0, m.err
+}
+
 type MockRequestContext struct {
 	param     string
 	aborted   bool

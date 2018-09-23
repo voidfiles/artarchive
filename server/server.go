@@ -58,8 +58,10 @@ func Serve() {
 	authorized.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "ok")
 	})
+	authorized.GET("/slides/", bind(handlers.ListSlides))
 	authorized.GET("/slides/:key", bind(handlers.GetSlide))
 	authorized.PUT("/slides/:key", bind(handlers.UpdateSlide))
+	authorized.GET("/sites/", bind(handlers.ListSites))
 
 	router.Run(":" + appConfig.Port)
 }

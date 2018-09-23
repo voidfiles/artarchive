@@ -29,6 +29,7 @@ type LocalSlideStore interface {
 	FindByKey(string) (slides.Slide, error)
 	UpdateByKey(string, interface{}) error
 	List(after int64) ([]slides.Slide, int64, error)
+	FindSites(query string, after int64) ([]slides.Site, int64, error)
 }
 
 type ServerHandlers struct {
@@ -148,5 +149,30 @@ func (sh *ServerHandlers) ListSlides(c RequestContext) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"next":   next,
 		"slides": slides,
+	})
+}
+
+func (sh *ServerHandlers) ListSites(c RequestContext) {
+	after, err := strconv.ParseInt(c.DefaultQuery("after", "0"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]string{
+			"error": "invalid-query",
+		})
+		return
+	}
+	query := c.DefaultQuery("query", "")
+	sites, next, err := sh.slideDbSTorage.FindSites(query, after)
+	if err != nil {
+		sh.logger.Error().AnErr("error", err).Msg("An error occured")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+			"error": "server-error",
+		})
+		return
+
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"next":  next,
+		"sites": sites,
 	})
 }

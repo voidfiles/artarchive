@@ -111,3 +111,28 @@ func (i *ItemStorage) List(after int64) ([]slides.Slide, int64, error) {
 	}
 	return slides, next, nil
 }
+
+// List will find all the keys in the database
+func (i *ItemStorage) FindSites(query string, after int64) ([]slides.Site, int64, error) {
+	sites := make([]slides.Site, 0)
+	target := make([]storageDocument, 0)
+	tx := i.db.MustBegin()
+	query = "%" + query + "%"
+	err := tx.Select(&target, "SELECT * FROM items WHERE id >= $1 AND data->'site'->>'title' LIKE $2 ORDER BY id LIMIT 100;", after, query)
+	if err != nil {
+		return sites, 0, err
+	}
+	tx.Commit()
+
+	if len(target) == 0 {
+		return sites, 0, nil
+	}
+	next := int64(-1)
+	if len(target) >= 100 {
+		next = target[len(target)-1].ID
+	}
+	for _, doc := range target {
+		sites = append(sites, doc.Data.Site)
+	}
+	return sites, next, nil
+}
