@@ -2,17 +2,21 @@ package doers
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/jmoiron/sqlx"
 	"github.com/voidfiles/artarchive/config"
 	"github.com/voidfiles/artarchive/indexer"
+	"github.com/voidfiles/artarchive/logging"
 	"github.com/voidfiles/artarchive/pipeline"
-	"github.com/voidfiles/artarchive/scanner"
+	"github.com/voidfiles/artarchive/storage"
 )
 
 func RunScanner() error {
 	appConfig := config.NewAppConfig()
+	logger := logging.NewLogger(false, nil)
 	sess, err := session.NewSession()
 	if err != nil {
 		panic(err)
@@ -20,12 +24,17 @@ func RunScanner() error {
 
 	sss := s3.New(sess)
 
-	slideScanner := scanner.NewSlideScanner(sss, 1000, appConfig.Bucket, appConfig.Version)
-
+	db, err := sqlx.Connect(appConfig.Database.Type, appConfig.Database.DatabaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	itemStore := storage.MustNewItemStorage(db)
+	slideScanner := storage.NewDBStorageProducer(logger, itemStore)
 	// Dump things
 	indexer := indexer.NewIndexer(
 		sss,
-		fmt.Sprintf("http://%s", appConfig.Bucket),
+		// https://s3.us-west-2.amazonaws.com/art.rumproarious.com/v2/slides/054fd38619b0b3752d79ca3d66182796.a98f339d491468f9372651f7f90e072ea3add478dea2075c8ba9181b038eef38/data.json
+		fmt.Sprintf("https://s3.us-west-2.amazonaws.com/%s", appConfig.Bucket),
 		appConfig.Bucket,
 		"art")
 	pipeline := pipeline.NewPipeline(slideScanner, indexer)

@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,7 @@ type RequestContext interface {
 	AbortWithStatusJSON(int, interface{})
 	JSON(int, interface{})
 	ShouldBindJSON(obj interface{}) error
+	DefaultQuery(key, defaultValue string) string
 }
 
 type RemoteSlideStore interface {
@@ -26,6 +28,7 @@ type RemoteSlideStore interface {
 type LocalSlideStore interface {
 	FindByKey(string) (slides.Slide, error)
 	UpdateByKey(string, interface{}) error
+	List(after int64) ([]slides.Slide, int64, error)
 }
 
 type ServerHandlers struct {
@@ -123,4 +126,27 @@ func (sh *ServerHandlers) UpdateSlide(c RequestContext) {
 	sh.slideS3Storage.Upload(slide)
 
 	c.JSON(http.StatusOK, slide)
+}
+
+func (sh *ServerHandlers) ListSlides(c RequestContext) {
+	after, err := strconv.ParseInt(c.DefaultQuery("after", "0"), 10, 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, map[string]string{
+			"error": "invalid-query",
+		})
+		return
+	}
+	slides, next, err := sh.slideDbSTorage.List(after)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+			"error": "server-error",
+		})
+		return
+
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"next":   next,
+		"slides": slides,
+	})
 }

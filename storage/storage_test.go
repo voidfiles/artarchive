@@ -133,14 +133,14 @@ func TestFindByKey(t *testing.T) {
 func TestUpdateByKey(t *testing.T) {
 	testTable := []struct {
 		key        string
-		dataIn     map[string]string
+		dataIn     slides.Slide
 		dataInsert []byte
 		err        error
 	}{
 		{
 			"a-key",
-			map[string]string{"key": "123"},
-			[]byte(`{"key":"123"}`),
+			slides.Slide{GUIDHash: "123"},
+			[]byte(`{"site":{},"page":{},"edited":"0001-01-01T00:00:00Z","guid_hash":"123"}`),
 			nil,
 		},
 	}
@@ -164,5 +164,49 @@ func TestUpdateByKey(t *testing.T) {
 			assert.Equal(t, test.err, err)
 		}
 
+	}
+}
+
+func TestList(t *testing.T) {
+	testTable := []struct {
+		numRows   int
+		key       string
+		dataIn    []byte
+		err       error
+		dataOut   []slides.Slide
+		queryNext int64
+		next      int64
+	}{
+		{0, "", []byte(""), nil, make([]slides.Slide, 0), 0, 0},
+		{1, "a-key", []byte(`{"guid_hash": "123"}`), nil, []slides.Slide{{GUIDHash: "123"}}, 0, -1},
+	}
+
+	for _, test := range testTable {
+		mockDB, mock, err := sqlmock.New()
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer mockDB.Close()
+		sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
+		store := MustNewItemStorage(sqlxDB)
+
+		rows := sqlmock.NewRows([]string{"id", "key", "data"})
+		for _ = range make([]string, test.numRows) {
+			rows.AddRow(1, test.key, test.dataIn)
+		}
+
+		mock.ExpectBegin()
+		mock.ExpectQuery("SELECT").
+			WithArgs(test.queryNext).
+			WillReturnRows(rows)
+		mock.ExpectClose()
+		data, next, err := store.List(test.queryNext)
+
+		if err != nil {
+			assert.Equal(t, test.err, err)
+		} else {
+			assert.Equal(t, test.dataOut, data)
+			assert.Equal(t, test.next, next)
+		}
 	}
 }

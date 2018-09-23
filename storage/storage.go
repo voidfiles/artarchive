@@ -1,12 +1,9 @@
 package storage
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/jmoiron/sqlx/types"
 	"github.com/voidfiles/artarchive/slides"
 )
 
@@ -80,21 +77,37 @@ func (i *ItemStorage) FindByKey(key string) (slides.Slide, error) {
 
 // UpdateByKey will store an item in the database
 func (i *ItemStorage) UpdateByKey(key string, data interface{}) error {
-	b, err := json.Marshal(data)
-	if err != nil {
-		return fmt.Errorf("store err: %v", err)
+	slide, ok := data.(slides.Slide)
+	if !ok {
+		return fmt.Errorf("store err: data failed .(slide.Slide) casting")
 	}
-
-	j := types.JSONText(string(b))
-	log.Printf("%v", j)
-	v, err := j.Value()
-	if err != nil {
-		return fmt.Errorf("store err: %v", err)
-	}
-
 	tx := i.db.MustBegin()
-	tx.MustExec("UPDATE items SET data = $1 WHERE key = $2", v, key) // Good protection kind of  AND data->>'guid_hash' = $2;
+	tx.MustExec("UPDATE items SET data = $1 WHERE key = $2", slide, key) // Good protection kind of  AND data->>'guid_hash' = $2;
 	tx.Commit()
 
 	return nil
+}
+
+// List will find all the keys in the database
+func (i *ItemStorage) List(after int64) ([]slides.Slide, int64, error) {
+	slides := make([]slides.Slide, 0)
+	target := make([]storageDocument, 0)
+	tx := i.db.MustBegin()
+	err := tx.Select(&target, "SELECT * FROM items WHERE id >= $1 ORDER BY id LIMIT 100;", after)
+	if err != nil {
+		return slides, 0, err
+	}
+	tx.Commit()
+
+	if len(target) == 0 {
+		return slides, 0, nil
+	}
+	next := int64(-1)
+	if len(target) >= 100 {
+		next = target[len(target)-1].ID
+	}
+	for _, doc := range target {
+		slides = append(slides, doc.Data)
+	}
+	return slides, next, nil
 }

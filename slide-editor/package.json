@@ -2,7 +2,7 @@
   "name": "slide-editor",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://art.rumproarious.com/slide-editor",
+  "homepage": "https://s3.us-west-2.amazonaws.com/art.rumproarious.com/slide-editor/",
   "dependencies": {
     "aws-sdk": "^2.283.1",
     "bootstrap": "3",

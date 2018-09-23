@@ -5,6 +5,42 @@ import (
 	"github.com/voidfiles/artarchive/slides"
 )
 
+type DBStorageProducer struct {
+	binding slides.Binding
+	i       *ItemStorage
+	logger  zerolog.Logger
+}
+
+func NewDBStorageProducer(logger zerolog.Logger, i *ItemStorage) *DBStorageProducer {
+	return &DBStorageProducer{
+		i:      i,
+		logger: logger,
+	}
+}
+
+func (d *DBStorageProducer) Configure(binding slides.Binding) {
+	d.binding = binding
+}
+
+func (d *DBStorageProducer) Run() {
+	moreSlides := true
+	next := int64(0)
+	slides := make([]slides.Slide, 0)
+	for {
+		if !moreSlides {
+			break
+		}
+		slides, next, _ = d.i.List(next)
+		for _, slide := range slides {
+			d.binding.Out <- slide
+		}
+		if next == int64(-1) {
+			moreSlides = false
+		}
+	}
+	close(d.binding.Out)
+}
+
 type DBStorageTransform struct {
 	binding slides.Binding
 	i       *ItemStorage

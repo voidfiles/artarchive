@@ -58,7 +58,7 @@ func (i *Indexer) slideToHTML(slide slides.Slide) string {
 		content += fmt.Sprintf("<h1>%s</h1>\n", artistInfo.Name)
 	}
 
-	content += fmt.Sprintf("<a href='%s/slide-editor/?key=%s'>edit</a>", i.public, slide.GUIDHash)
+	content += fmt.Sprintf("<a href='%s/slide-editor/index.html?key=%s'>edit</a>", i.public, slide.GUIDHash)
 	return fmt.Sprintf(`<section data-background-image="%s/images/%s" data-background-size="contain">%s</section>`, i.public, slide.ArchivedImage.Filename, content)
 }
 
