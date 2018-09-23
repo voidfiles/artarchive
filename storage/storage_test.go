@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"testing"
@@ -8,6 +9,7 @@ import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
+	"github.com/voidfiles/artarchive/slides"
 )
 
 func TestStore(t *testing.T) {
@@ -16,7 +18,7 @@ func TestStore(t *testing.T) {
 		in1            string
 		in2            []byte
 		pass1          string
-		pass2          interface{}
+		pass2          slides.Slide
 		expectedID     string
 		expectError    bool
 		expectErrorMsg error
@@ -24,36 +26,18 @@ func TestStore(t *testing.T) {
 	}{
 		{
 			"123",
-			[]byte("\"yo\""),
+			[]byte(`{"site":{},"page":{},"edited":"0001-01-01T00:00:00Z","guid_hash":"123"}`),
 			"123",
-			"yo",
+			slides.Slide{GUIDHash: "123"},
 			"1",
 			false,
 			nil,
 			"",
 		}, {
 			"123",
-			[]byte("\"yo\""),
+			[]byte(`{"site":{},"page":{},"edited":"0001-01-01T00:00:00Z","guid_hash":"yo"}`),
 			"123",
-			make(chan int),
-			"",
-			true,
-			fmt.Errorf("store err: %v", "json: unsupported type: chan int"),
-			"",
-		}, {
-			"123",
-			[]byte("\"yo\""),
-			"123",
-			make(chan int),
-			"",
-			true,
-			fmt.Errorf("store err: %v", "json: unsupported type: chan int"),
-			"",
-		}, {
-			"123",
-			[]byte("\"yo\""),
-			"123",
-			"yo",
+			slides.Slide{GUIDHash: "yo"},
 			"",
 			true,
 			fmt.Errorf("store err: An insert error"),
@@ -61,6 +45,8 @@ func TestStore(t *testing.T) {
 		},
 	}
 	for _, test := range testTable {
+		dump, _ := json.Marshal(test.pass2)
+		log.Printf("%v", string(dump))
 		mockDB, mock, err := sqlmock.New()
 		if err != nil {
 			log.Fatal(err)
@@ -96,38 +82,20 @@ func TestFindByKey(t *testing.T) {
 		key     string
 		numRows int
 		dataIn  []byte
-		dataOut []byte
+		dataOut slides.Slide
 		err     error
 	}{
 		{
 			"a-key",
 			1,
-			[]byte("yo"),
-			[]byte("yo"),
-			nil,
-		}, {
-			"a-key",
-			1,
-			[]byte(""),
-			[]byte("{}"),
-			nil,
-		}, {
-			"a-key",
-			1,
-			[]byte(nil),
-			[]byte("{}"),
-			nil,
-		}, {
-			"a-key",
-			1,
-			[]byte("{\"a"),
-			[]byte("{\"a"),
+			[]byte(`{"guid_hash":"yo"}`),
+			slides.Slide{GUIDHash: "yo"},
 			nil,
 		}, {
 			"a-key",
 			0,
-			[]byte("yo"),
-			[]byte("yo"),
+			[]byte(`{"guid_hash":"yo"}`),
+			slides.Slide{GUIDHash: "yo"},
 			fmt.Errorf("store err: missing"),
 		},
 	}

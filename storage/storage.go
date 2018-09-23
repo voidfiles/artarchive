@@ -7,6 +7,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/types"
+	"github.com/voidfiles/artarchive/slides"
 )
 
 var (
@@ -26,9 +27,9 @@ func MustNewItemStorage(db *sqlx.DB) *ItemStorage {
 }
 
 type storageDocument struct {
-	ID   int64          `db:"id"`
-	Key  string         `db:"key"`
-	Data types.JSONText `db:"data"`
+	ID   int64        `db:"id"`
+	Key  string       `db:"key"`
+	Data slides.Slide `db:"data"`
 }
 
 // MigrateDB will implment schema changes
@@ -46,20 +47,10 @@ func (i *ItemStorage) MigrateDB() {
 }
 
 // Store will store an item in the database
-func (i *ItemStorage) Store(key string, data interface{}) (string, error) {
-	b, err := json.Marshal(data)
-	if err != nil {
-		return "", fmt.Errorf("store err: %v", err)
-	}
+func (i *ItemStorage) Store(key string, data slides.Slide) (string, error) {
 
-	j := types.JSONText(string(b))
-
-	v, err := j.Value()
-	if err != nil {
-		return "", fmt.Errorf("store err: %v", err)
-	}
 	tx := i.db.MustBegin()
-	result := tx.MustExec("INSERT INTO items (key, data) VALUES ($1, $2) RETURNING id;", key, v)
+	result := tx.MustExec("INSERT INTO items (key, data) VALUES ($1, $2) RETURNING id;", key, data)
 	tx.Commit()
 
 	id, err := result.LastInsertId()
@@ -73,7 +64,7 @@ func (i *ItemStorage) Store(key string, data interface{}) (string, error) {
 }
 
 //FindByKey finds an item in the database
-func (i *ItemStorage) FindByKey(key string) ([]byte, error) {
+func (i *ItemStorage) FindByKey(key string) (slides.Slide, error) {
 
 	target := storageDocument{}
 	tx := i.db.MustBegin()
@@ -81,15 +72,10 @@ func (i *ItemStorage) FindByKey(key string) ([]byte, error) {
 	tx.Commit()
 
 	if target.ID == 0 {
-		return []byte(""), ErrMissingSlide
+		return slides.Slide{}, ErrMissingSlide
 	}
 
-	data, err := target.Data.MarshalJSON()
-
-	if err != nil {
-		return []byte(""), fmt.Errorf("store err: %v", err)
-	}
-	return data, nil
+	return target.Data, nil
 }
 
 // UpdateByKey will store an item in the database

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -25,7 +24,7 @@ type RemoteSlideStore interface {
 }
 
 type LocalSlideStore interface {
-	FindByKey(string) ([]byte, error)
+	FindByKey(string) (slides.Slide, error)
 	UpdateByKey(string, interface{}) error
 }
 
@@ -52,7 +51,7 @@ func (sh *ServerHandlers) GetSlide(c RequestContext) {
 		})
 		return
 	}
-	data, err := sh.slideDbSTorage.FindByKey(key)
+	slide, err := sh.slideDbSTorage.FindByKey(key)
 	if err != nil {
 		if err == storage.ErrMissingSlide {
 			c.AbortWithStatusJSON(http.StatusNotFound, map[string]string{
@@ -67,15 +66,7 @@ func (sh *ServerHandlers) GetSlide(c RequestContext) {
 		return
 
 	}
-	slide := slides.Slide{}
-	err = json.Unmarshal(data, &slide)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
-			"error": "server-error",
-		})
-		return
 
-	}
 	c.JSON(http.StatusOK, slide)
 }
 

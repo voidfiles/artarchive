@@ -1,6 +1,9 @@
 package slides
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -63,4 +66,22 @@ type Slide struct {
 	ArtistInfo     *ArtistInfo   `json:"artist_info,omitempty"`
 	ArtistsInfo    []*ArtistInfo `json:"artists,omitempty"`
 	WorkInfo       *WorkInfo     `json:"work_info,omitempty"`
+}
+
+func (s Slide) Value() (driver.Value, error) {
+	return json.Marshal(s)
+}
+
+func (s *Slide) Scan(src interface{}) error {
+	source, ok := src.([]byte)
+	if !ok {
+		return errors.New("type assertion .([]byte) failed.")
+	}
+
+	err := json.Unmarshal(source, &s)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

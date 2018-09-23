@@ -36,7 +36,7 @@ class ObjectClient extends Component {
 
   saveObject = (key, data) => {
     return fetch(this.baseURL + '/slides/' + key, {
-     method: 'POST',
+     method: 'PUT',
      headers: this.headers,
      body: JSON.stringify(data)
    }).then((response) => response.json());

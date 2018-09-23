@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -12,12 +11,12 @@ import (
 )
 
 type MockSlideStore struct {
-	data  []byte
+	data  slides.Slide
 	slide slides.Slide
 	err   error
 }
 
-func (m *MockSlideStore) FindByKey(key string) ([]byte, error) {
+func (m *MockSlideStore) FindByKey(key string) (slides.Slide, error) {
 	return m.data, m.err
 }
 
@@ -72,15 +71,13 @@ func TestGetSlide(t *testing.T) {
 		expectAbort bool
 		code        int
 		data        interface{}
-		mockData    []byte
+		mockData    slides.Slide
 		mockSlide   slides.Slide
 		mockError   error
 	}{
-		{"a key", false, 200, slides.Slide{}, []byte("{\"key\": \"123\"}"), slides.Slide{}, nil},
-		{"", true, 400, map[string]string{"error": "missing-param"}, []byte("{\"key\": \"123\"}"), slides.Slide{}, nil},
-		{"123", true, 404, map[string]string{"error": "object-missing"}, []byte("{\"key\": \"123\"}"), slides.Slide{}, storage.ErrMissingSlide},
-		{"123", true, 500, map[string]string{"error": "server-error"}, []byte("{\"key\": \"123\"}"), slides.Slide{}, fmt.Errorf("Bad stuff")},
-		{"a key", true, 500, map[string]string{"error": "server-error"}, []byte("{\"key\": \"123\""), slides.Slide{}, nil},
+		{"a key", false, 200, slides.Slide{}, slides.Slide{}, slides.Slide{}, nil},
+		{"", true, 400, map[string]string{"error": "missing-param"}, slides.Slide{}, slides.Slide{}, nil},
+		{"123", true, 404, map[string]string{"error": "object-missing"}, slides.Slide{}, slides.Slide{}, storage.ErrMissingSlide},
 	}
 	for _, test := range testTable {
 		mockStore := &MockSlideStore{
@@ -107,11 +104,11 @@ func TestUpdateSlide(t *testing.T) {
 		expectAbort bool
 		code        int
 		data        interface{}
-		mockData    []byte
+		mockData    slides.Slide
 		mockSlide   slides.Slide
 		mockError   error
 	}{
-		{"a key", false, 200, slides.Slide{}, []byte("{\"key\": \"123\"}"), slides.Slide{}, nil},
+		{"a key", false, 200, slides.Slide{}, slides.Slide{}, slides.Slide{}, nil},
 	}
 	for _, test := range testTable {
 		mockStore := &MockSlideStore{
