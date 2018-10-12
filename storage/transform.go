@@ -66,6 +66,31 @@ func (d *DBStorageTransform) Run() {
 	close(d.binding.Out)
 }
 
+type DBUpdateTransform struct {
+	binding slides.Binding
+	i       *ItemStorage
+	logger  zerolog.Logger
+}
+
+func NewDBUpdateTransform(logger zerolog.Logger, i *ItemStorage) *DBUpdateTransform {
+	return &DBUpdateTransform{
+		i:      i,
+		logger: logger,
+	}
+}
+
+func (d *DBUpdateTransform) Configure(binding slides.Binding) {
+	d.binding = binding
+}
+
+func (d *DBUpdateTransform) Run() {
+	for slide := range d.binding.In {
+		d.i.UpdateByKey(slide.GUIDHash, slide)
+		d.binding.Out <- slide
+	}
+	close(d.binding.Out)
+}
+
 type DBStorageDropTransform struct {
 	binding slides.Binding
 	i       *ItemStorage

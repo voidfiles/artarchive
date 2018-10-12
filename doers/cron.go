@@ -13,7 +13,7 @@ func RunCron() {
 	})
 	gocron.Every(60).Minutes().Do(func() {
 		log.Printf("Running indexer")
-		RunScanner()
+		RunScanner("slideshow")
 	})
 	<-gocron.Start()
 }

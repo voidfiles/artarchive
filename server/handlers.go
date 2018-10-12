@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	"github.com/voidfiles/artarchive/indexer"
 	"github.com/voidfiles/artarchive/slides"
 	"github.com/voidfiles/artarchive/storage"
 	"gopkg.in/go-playground/validator.v9"
@@ -16,6 +17,7 @@ type RequestContext interface {
 	Param(string) string
 	AbortWithStatusJSON(int, interface{})
 	JSON(int, interface{})
+	Data(code int, contentType string, data []byte)
 	ShouldBindJSON(obj interface{}) error
 	DefaultQuery(key, defaultValue string) string
 }
@@ -175,4 +177,27 @@ func (sh *ServerHandlers) ListSites(c RequestContext) {
 		"next":  next,
 		"sites": sites,
 	})
+}
+
+func (sh *ServerHandlers) RenderSlide(c RequestContext) {
+	key := c.Param("key")
+	sh.logger.Info().Str("key", key).Msgf("Render slide: %s", key)
+
+	slide, err := sh.slideDbSTorage.FindByKey(key)
+	if err != nil {
+		if err == storage.ErrMissingSlide {
+			c.AbortWithStatusJSON(http.StatusNotFound, map[string]string{
+				"error": "object-missing",
+			})
+			return
+		}
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]string{
+			"error": "server-error",
+		})
+		return
+
+	}
+
+	c.Data(http.StatusOK, "text/html", indexer.RenderBlogSlide(slide))
 }

@@ -64,6 +64,10 @@ func (m *MockRequestContext) JSON(code int, data interface{}) {
 	m.data = data
 }
 
+func (m *MockRequestContext) Data(code int, contentType string, data []byte) {
+
+}
+
 func (m *MockRequestContext) ShouldBindJSON(obj interface{}) error {
 	return nil
 }

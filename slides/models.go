@@ -54,6 +54,12 @@ type WorkInfo struct {
 	Name string `json:"name,omitempty"`
 }
 
+// RenderHash storage for various renders of the slide its self
+type RenderHash struct {
+	Blog  string `json:"blog,omitempty"`
+	Slide string `json:"slide,omitempty"`
+}
+
 // Slide bundles together important information about a find
 type Slide struct {
 	Site           Site          `json:"site,omitempty"`
@@ -66,6 +72,7 @@ type Slide struct {
 	ArtistInfo     *ArtistInfo   `json:"artist_info,omitempty"`
 	ArtistsInfo    []*ArtistInfo `json:"artists,omitempty"`
 	WorkInfo       *WorkInfo     `json:"work_info,omitempty"`
+	RenderHash     RenderHash    `json:"render_hash,omitempty"`
 }
 
 func (s Slide) Value() (driver.Value, error) {

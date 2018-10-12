@@ -55,6 +55,7 @@ func Serve() {
 	slideS3Storage := slides.NewSlideStorage(sss, appConfig.Bucket, appConfig.Version)
 	handlers := MustNewServerHandlers(logger, slideS3Storage, slidesDBStorage)
 
+	router.GET("/render/slide/:key", bind(handlers.RenderSlide))
 	authorized.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "ok")
 	})
